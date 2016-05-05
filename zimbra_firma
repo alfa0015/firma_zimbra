@@ -1,0 +1,179 @@
+#!/usr/bin/env ruby
+class Firma
+	def html(user,imagen)
+		html="<table cellpadding="<<34.chr<<"10"<<34.chr<<"><tbody><tr><td><img class="<<34.chr<<"picture_preview"<<34.chr<<" src="<<34.chr<<"#{imagen}"<<34.chr<<" width="<<34.chr<<"120"<<34.chr<<"/></td><td><strong>#{user[:name]}</strong><br />#{user[:title]}<br />Email:#{user[:email]}<br />Tel&eacute;fono de Oficina:#{user[:phone]}<br />PBX:#{user[:pbx]}<br />Direcci&oacute;n:#{user[:street]}<br />Sitio web: www.aac.gob.sv<br />#{user[:co]}</td></tr></tbody></table>"
+	end
+end
+
+puts "*************************************************"
+puts "* a-) Crear Firma para todos los Usuarios       *"
+puts "* b-) Crear Firma para Usuario                  *"
+puts "* c-) Actualizar Firmas para todos los usuarios *"
+puts "* d-) Actualizar Firmas para un Usuario         *"
+puts "* e-) Eliminar Firma de todos Usuarios          *"
+puts "* f-) Eliminar Firma para un Usuario 		      *"
+puts "*************************************************"
+puts "\n"
+puts "Seleccione una opcion"
+option = gets.chomp
+firma = Firma.new
+case option
+	when "a"
+		puts "ingrese la url de la imagen\n"
+		imagen = gets.chomp
+		zusers=`zmprov -l gaa`
+		users=zusers.strip.gsub(/\s+/, ' ')
+		users = users.split(" ")
+		users = users.delete_if{|u|u.to_s.match(/^admin/)}
+		users = users.delete_if{|u|u.to_s.match(/^spam/)}
+		users = users.delete_if{|u|u.to_s.match(/^ham/)}
+		users = users.delete_if{|u|u.to_s.match(/^virus-quarantine/)}
+		users = users.delete_if{|u|u.to_s.match(/^galsync/)}
+		users.each do |u|
+			#details = {name,title,email,phone,pbx,street,site,co}
+			details = Hash.new
+			udetails=`zmprov ga #{u}`.split(/$/)
+			udetails.each do |user|
+                user=user.strip.gsub(/\s+/, ' ')
+                user=user.split(":")
+                case user[0]
+                    when "displayName"
+                        details[:name]=user[1]
+                    when "title"
+                        details[:title]=user[1]
+                    when "mail"
+                        details[:email]=user[1]
+                    when "homePhone"
+                        details[:phone]=user[1]
+                    when "telephoneNumber"
+                        details[:pbx]=user[1]
+                    when "street"
+                        details[:street]=user[1]
+                    when "co"
+                        details[:co]=user[1]
+                end
+            end
+            codigo=firma.html(details,imagen)
+            f = `zmprov csig #{u} Test zimbraPrefMailSignatureHTML '#{codigo}'`
+            puts "#{u} done"
+		end
+	when "b"
+		puts "ingrese la url de la imagen\n"
+		imagen = gets.chomp
+		puts "Ingrese la cuenta de correo ej: user@domain.com"
+		u=gets.chomp
+		details = Hash.new
+		udetails=`zmprov ga #{u}`.split(/$/)
+		udetails.each do |user|
+            user=user.strip.gsub(/\s+/, ' ')
+            user=user.split(":")
+            case user[0]
+                when "displayName"
+                    details[:name]=user[1]
+                when "title"
+                    details[:title]=user[1]
+                when "mail"
+                    details[:email]=user[1]
+                when "homePhone"
+                    details[:phone]=user[1]
+                when "telephoneNumber"
+                    details[:pbx]=user[1]
+                when "street"
+                    details[:street]=user[1]
+                when "co"
+                    details[:co]=user[1]
+            end
+        end
+        codigo=firma.html(details,imagen)
+        f = `zmprov csig #{u} Test zimbraPrefMailSignatureHTML '#{codigo}'`
+        puts "#{u} done"
+	when "c"
+		puts "ingrese la url de la imagen\n"
+		imagen = gets.chomp
+		zusers=`zmprov -l gaa`
+		users=zusers.strip.gsub(/\s+/, ' ')
+		users = users.split(" ")
+		users = users.delete_if{|u|u.to_s.match(/^admin/)}
+		users = users.delete_if{|u|u.to_s.match(/^spam/)}
+		users = users.delete_if{|u|u.to_s.match(/^ham/)}
+		users = users.delete_if{|u|u.to_s.match(/^virus-quarantine/)}
+		users = users.delete_if{|u|u.to_s.match(/^galsync/)}
+		users.each do |u|
+			#details = {name,title,email,phone,pbx,street,site,co}
+			details = Hash.new
+			udetails=`zmprov ga #{u}`.split(/$/)
+			udetails.each do |user|
+                user=user.strip.gsub(/\s+/, ' ')
+                user=user.split(":")
+                case user[0]
+                    when "displayName"
+                        details[:name]=user[1]
+                    when "title"
+                        details[:title]=user[1]
+                    when "mail"
+                        details[:email]=user[1]
+                    when "homePhone"
+                        details[:phone]=user[1]
+                    when "telephoneNumber"
+                        details[:pbx]=user[1]
+                    when "street"
+                        details[:street]=user[1]
+                    when "co"
+                        details[:co]=user[1]
+                end
+            end
+            codigo=firma.html(details,imagen)
+            d = `zmprov dsig #{u} Test`
+            f = `zmprov csig #{u} Test zimbraPrefMailSignatureHTML '#{codigo}'`
+            puts "#{u} done"
+		end
+	when "d"
+		puts "ingrese la url de la imagen\n"
+		imagen = gets.chomp
+		puts "Ingrese la cuenta de correo ej: user@domain.com"
+		u=gets.chomp
+		details = Hash.new
+		udetails=`zmprov ga #{u}`.split(/$/)
+		udetails.each do |user|
+            user=user.strip.gsub(/\s+/, ' ')
+            user=user.split(":")
+            case user[0]
+                when "displayName"
+                    details[:name]=user[1]
+                when "title"
+                    details[:title]=user[1]
+                when "mail"
+                    details[:email]=user[1]
+                when "homePhone"
+                    details[:phone]=user[1]
+                when "telephoneNumber"
+                    details[:pbx]=user[1]
+                when "street"
+                    details[:street]=user[1]
+                when "co"
+                    details[:co]=user[1]
+            end
+        end
+        codigo=firma.html(details,imagen)
+        d = `zmprov dsig #{u} Test`
+        f = `zmprov csig #{u} Test zimbraPrefMailSignatureHTML '#{codigo}'`
+        puts "#{u} done"
+    when "e"
+    	zusers=`zmprov -l gaa`
+		users=zusers.strip.gsub(/\s+/, ' ')
+		users = users.split(" ")
+		users = users.delete_if{|u|u.to_s.match(/^admin/)}
+		users = users.delete_if{|u|u.to_s.match(/^spam/)}
+		users = users.delete_if{|u|u.to_s.match(/^ham/)}
+		users = users.delete_if{|u|u.to_s.match(/^virus-quarantine/)}
+		users = users.delete_if{|u|u.to_s.match(/^galsync/)}
+		users.each do |u|
+            d = `zmprov dsig #{u} Test`
+            puts "#{u} done"
+		end
+    when "f"
+    	puts "Ingrese la cuenta de correo ej: user@domain.com"
+		u=gets.chomp
+        d = `zmprov dsig #{u} Test`
+        puts "#{u} done"
+end
